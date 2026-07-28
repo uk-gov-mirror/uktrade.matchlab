@@ -1,0 +1,26 @@
+# .github/workflows/release-please.yml
+name: release-please
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      # Pin to an immutable commit SHA from googleapis/release-please-action
+      - uses: googleapis/release-please-action@a02a34c4d625f9be7cb89156071d8567266a2445 #v4.2.0
+        with:
+          release-type: simple
+          package-name: ${{ github.event.repository.name }}
+          tag-separator: ""               # tags like v1.2.3 (no extra separator)
+          bump-minor-pre-major: false
+          bump-patch-for-minor-pre-major: false
+          # Optional: if we want workflows to run on release PRs created by the bot,
+          # provide a PAT because events from GITHUB_TOKEN are not re-triggered.
+          # token: ${{ secrets.MY_RELEASE_PLEASE_TOKEN }}

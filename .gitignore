@@ -1,0 +1,5 @@
+## The .gitignore file prevents local files on disk from being committed to version control.
+## It should include anything that you don't want to commit to GitHub. This includes, but is not limited to, 
+## .env files containing secrets, transitive lock files, Terraform state files, etc. 
+
+## You can find language specific .gitignore files here to start: https://github.com/github/gitignore
