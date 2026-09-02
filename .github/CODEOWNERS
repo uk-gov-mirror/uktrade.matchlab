@@ -1,4 +1,4 @@
 # Require YOUR team review for all changes
 # Make sure the team slug (@uktrade/yourteam such as @uktrade/webops) matches an actual team in the uktrade org.
 
-*   @uktrade/webops # Update this to the relevant team
+*   @uktrade/data-matching-service
