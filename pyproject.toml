@@ -1,0 +1,149 @@
+[project]
+name = "matchlab"
+dynamic = ["version"]
+description = "A local-first library for building, running and evaluating entity resolution pipelines."
+authors = [{ name="Department for Business and Trade" }]
+license-files = ["LICENSE"]
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "adbc-driver-manager>=1.9.0",
+    "duckdb>=1.1.1",
+    "faker>=36.1.1",
+    "frozendict>=2.4.6",
+    "pandas>=2.3.3",
+    "platformdirs>=4.5.0",
+    "polars-hash>=0.5.3",
+    "polars>=1.32.3",
+    "pyarrow>=17.0.0",
+    "pydantic>=2.9.2",
+    "rich>=13.9.4",
+    "splink>=4.0.5,<4.1.0",
+    "sqlalchemy>=2.0.35",
+    "sqlglot[c]>=30.0.3",
+    "textual>=0.80",
+]
+
+[project.scripts]
+matchlab = "matchlab.cli:main"
+
+[dependency-groups]
+dev = [
+    "adbc-driver-sqlite>=1.9.0",
+    "griffe-inherited-docstrings>=1.1.1",
+    "ipykernel>=6.29.5",
+    "ipywidgets>=8.1.5",
+    "mkdocs-autorefs>=1.3.0",
+    "mkdocstrings-python>=2.0.3",
+    "pre-commit>=3.8.0",
+    "pytest-asyncio>=0.24",
+    "pytest-xdist>=3.8.0",
+    "pytest>=8.3.3",
+    "setuptools-scm>=8.3.1",
+    "snakeviz>=2.2.2",
+    "zensical>=0.0.57",
+]
+typing = [
+    "pyarrow-stubs>=17.16",
+]
+
+[project.urls]
+"Documentation" = "https://uktrade.github.io/matchlab/"
+"Repository" = "https://github.com/uktrade/matchlab.git"
+
+[build-system]
+requires = ["setuptools-scm>=8", "setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+# Presence enables setuptools-scm
+[tool.setuptools_scm]
+fallback_version = "0.1.0"
+
+[tool.uv]
+default-groups = ["dev", "typing"]
+package = true
+constraint-dependencies = [
+    "filelock>=3.20.3",
+    "setuptools-scm>=9.2.0",
+    "urllib3>=2.6.3",
+    "virtualenv>=20.36.1",
+]
+
+[tool.ruff]
+exclude = [
+    "*.ipynb"
+]
+line-length = 88
+indent-width = 4
+target-version = "py311"
+# Ensure benchmark is treated as a first-party in imports
+src = ["src", "."]
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "B",
+    "D",
+    "UP",
+    "TID",
+    "BLE",
+    "PLC",
+    "SIM",
+    "ANN",
+    "RUF100",
+]
+ignore = []
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-annotations]
+allow-star-arg-any = true
+
+[tool.ruff.lint.per-file-ignores]
+# Store methods inherit their docstrings from the Store ABC, which
+# griffe-inherited-docstrings renders into the docs.
+"src/matchlab/stores/*" = ["D102"]
+# Benchmark code allows printing
+"benchmarks/**" = ["T201"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+asyncio_mode = "auto"
+pythonpath = ["."]
+addopts = "-n auto --dist=loadgroup"
+norecursedirs = "src"
+log_cli = false  # Set to true to enable logs and individual tests
+log_cli_level = "DEBUG"  # Set to "INFO" to see less detailed logging
+log_cli_format = "%(asctime)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)s)"
+log_cli_date_format = "%X"
+filterwarnings = [
+    "ignore:.*__fields__.*:pydantic.PydanticDeprecatedSince20:unittest.mock",
+    "ignore:.*__fields_set__.*:pydantic.PydanticDeprecatedSince20:unittest.mock",
+    "ignore:.*model_fields.*:pydantic.PydanticDeprecatedSince211:unittest.mock",
+    "ignore:.*model_computed_fields.*:pydantic.PydanticDeprecatedSince211:unittest.mock",
+]
+markers = [
+    "serial: marks tests that share state and must run in one xdist group",
+]

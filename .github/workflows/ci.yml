@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+    - name: Setup toolchain
+      uses: ./.github/actions/setup-toolchain
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Run tests
+      run: just test
+
+  format-and-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+    - name: Setup toolchain
+      uses: ./.github/actions/setup-toolchain
+
+    - name: Format and lint
+      run: just format
+
+    # `just format` fixes in place and exits 0, so without this the job passes
+    # while leaving the fix uncommitted — stale noqa directives never surface.
+    - name: Check for uncommitted fixes
+      run: git diff --exit-code
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Setup toolchain
+        uses: ./.github/actions/setup-toolchain
+        with:
+          install-just: "false"
+
+      - name: Build the package
+        run: uv build
+
+      - name: Build docs
+        run: uv run zensical build --strict
+
+  ci-success:
+    needs: [format-and-lint, test, build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: CI Success
+        run: echo "All CI checks passed!"

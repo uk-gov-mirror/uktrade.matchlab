@@ -1,0 +1,29 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "matchlab: Debug",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "purpose": ["debug-test"],
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "PYTEST_ADDOPTS": "-p no:xdist",
+                "PYTHONPATH": "${workspaceFolder}",
+            },
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "cwd": "${workspaceFolder}",
+        },
+        {
+            "name": "matchlab: Profile",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "cProfile",
+            "args": [
+                "-o", "/tmp/tmp.prof", "${file}"
+            ]
+        }
+    ]
+}
