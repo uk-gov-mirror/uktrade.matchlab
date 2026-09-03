@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.0 (2026-09-03)
+
+
+### Features
+
+* Setup code security ([555cf21](https://github.com/uktrade/matchlab/commit/555cf216d8f9077f49a1c6613097a3358a7f2135))
+* Setup code security ([8d30e18](https://github.com/uktrade/matchlab/commit/8d30e18df9b703b4706cf5d81e45a841a77ba6f1))
+
 ## [1.2.0](https://github.com/uktrade/uktrade-repo-template/compare/v1.1.0...v1.2.0) (2026-07-23)
 
 
