@@ -57,6 +57,11 @@ def test_root_id_order_invariant() -> None:
     assert root_id_of([1, 2]) != root_id_of([1, 3])
 
 
+def test_root_id_compatibility() -> None:
+    """Dependency upgrades must preserve root IDs used by stored judgements."""
+    assert root_id_of([1, 2, 18446744073709551615]) == 10545872694498418499
+
+
 # -- the layered fall-through scenario -------------------------------------------------
 
 

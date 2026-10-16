@@ -24,6 +24,21 @@ methods = pytest.mark.parametrize(
 # -- row hashing ----------------------------------------------------------------------
 
 
+def test_hash_rows_compatibility() -> None:
+    """Dependency upgrades must preserve the hashes that identify stored leaves."""
+    data = pl.DataFrame(
+        {"name": ["acme", None, "beta"], "town": ["london", "leeds", ""]}
+    )
+
+    hashes = hash_rows(data, columns=["name", "town"])
+
+    assert hashes.to_list() == [
+        bytes.fromhex("bf468096d54b94f7092bd76ef2a60bf4"),
+        bytes.fromhex("05a8dd348c59da251f00af558abfb4f3"),
+        bytes.fromhex("2f757c1cc37b78a49bdb6c2f8a6ee432"),
+    ]
+
+
 @methods
 def test_hash_rows_all_dtypes(method: HashMethod) -> None:
     """One hash per row over the full spread of dtypes a source can present.

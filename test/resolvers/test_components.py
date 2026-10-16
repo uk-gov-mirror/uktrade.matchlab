@@ -1,7 +1,9 @@
 """Tests for the Components resolver methodology."""
 
 import polars as pl
+import pytest
 
+from matchlab.core.schemas import SCHEMA_MODEL_EDGES
 from matchlab.resolvers import Components
 from matchlab.resolvers.base import SCHEMA_CLUSTERS
 
@@ -26,6 +28,7 @@ def test_components_uses_thresholds() -> None:
 
     clusters = method.compute_clusters(model_edges=model_edges)
 
+    assert dict(clusters.schema) == dict(pl.Schema(SCHEMA_CLUSTERS))
     grouped_clusters = {
         frozenset(group["child_id"].to_list())
         for group in clusters.partition_by("parent_id")
@@ -33,11 +36,30 @@ def test_components_uses_thresholds() -> None:
     assert grouped_clusters == {frozenset({1, 2})}
 
 
-def test_components_no_edges() -> None:
-    """`Components.compute_clusters` works with no data."""
-    clusters = Components().compute_clusters(model_edges={})
+@pytest.mark.parametrize(
+    ("model_edges",),
+    [
+        pytest.param({}, id="no_models"),
+        pytest.param(
+            {0: pl.DataFrame(schema=pl.Schema(SCHEMA_MODEL_EDGES))},
+            id="empty_model",
+        ),
+        pytest.param(
+            {
+                0: pl.DataFrame(
+                    {"left_id": [1], "right_id": [2], "score": [0.4]},
+                    schema=pl.Schema(SCHEMA_MODEL_EDGES),
+                )
+            },
+            id="below_threshold",
+        ),
+    ],
+)
+def test_components_no_edges(model_edges: dict[int, pl.DataFrame]) -> None:
+    """Empty fastdsu output keeps the cluster schema, even after filtering."""
+    clusters = Components(thresholds={0: 0.6}).compute_clusters(model_edges=model_edges)
     assert clusters.height == 0
-    assert clusters.schema == pl.Schema(SCHEMA_CLUSTERS)
+    assert dict(clusters.schema) == dict(pl.Schema(SCHEMA_CLUSTERS))
 
 
 def test_components_merges_models() -> None:
