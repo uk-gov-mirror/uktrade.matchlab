@@ -10,6 +10,7 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, TypeAlias
 
 import polars as pl
+import pyarrow as pa
 from fastdsu import connected_components
 from pydantic import BaseModel
 
@@ -254,8 +255,10 @@ def _merged_resolver_output(readings: list[Reading]) -> pl.DataFrame:
     )
 
     # Find components
-    components: pl.DataFrame = pl.from_arrow(
-        connected_components(edges["src"].to_arrow(), edges["dst"].to_arrow())
+    components: pl.DataFrame = pl.DataFrame(
+        pa.record_batch(
+            connected_components(edges["src"].to_arrow(), edges["dst"].to_arrow())
+        )
     ).rename({"key": "leaf", "label": "_component"})
 
     # Content address components by leaves

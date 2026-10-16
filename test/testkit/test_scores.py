@@ -1,6 +1,7 @@
 """Tests for generating entity scores and recovering clusters from them."""
 
 import polars as pl
+import pyarrow as pa
 import pytest
 from fastdsu import connected_components
 
@@ -285,8 +286,12 @@ def test_disjoint_set_recovery() -> None:
 
     edges = table.filter(pl.col("score") >= 0.9).select(["left_id", "right_id"])
 
-    labels = pl.from_arrow(
-        connected_components(edges["left_id"].to_arrow(), edges["right_id"].to_arrow())
+    labels = pl.DataFrame(
+        pa.record_batch(
+            connected_components(
+                edges["left_id"].to_arrow(), edges["right_id"].to_arrow()
+            )
+        )
     )
 
     # Splitting each entity into six one-record clusters should recover exactly two
@@ -358,8 +363,12 @@ def test_complex_entity_recovery() -> None:
 
     edges = table.filter(pl.col("score") >= 0.9).select(["left_id", "right_id"])
 
-    labels = pl.from_arrow(
-        connected_components(edges["left_id"].to_arrow(), edges["right_id"].to_arrow())
+    labels = pl.DataFrame(
+        pa.record_batch(
+            connected_components(
+                edges["left_id"].to_arrow(), edges["right_id"].to_arrow()
+            )
+        )
     )
 
     assert labels["label"].unique().len() == 1

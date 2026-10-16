@@ -71,11 +71,9 @@ def hash_rows(
 
     if method == HashMethod.XXH3_128:
         row_hashes = df_processed.select(
-            # Pinned explicitly: later polars-hash versions return a u128 int here,
-            # and leaves require binary
+            # Preserve the 16-byte format used by stored leaves and fingerprints.
             plh.concat_str(str_concatenation)
-            .nchash.xxh3_128()
-            .cast(pl.Binary)
+            .nchash.xxh3_128(return_binary=True, byte_order="little")
             .alias("row_hash")
         )
         return row_hashes["row_hash"]

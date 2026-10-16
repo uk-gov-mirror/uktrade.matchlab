@@ -4,6 +4,7 @@ from collections.abc import Mapping
 from typing import Annotated, ClassVar
 
 import polars as pl
+import pyarrow as pa
 from fastdsu import connected_components
 from pydantic import Field
 
@@ -43,7 +44,7 @@ class Components(ResolverMethod):
         ]
 
         if not filtered:
-            return pl.from_arrow(SCHEMA_CLUSTERS.empty_table())
+            return pl.DataFrame(SCHEMA_CLUSTERS.empty_table())
 
         edges = pl.concat(filtered).select(
             pl.col("left_id").alias("src"),
@@ -51,10 +52,12 @@ class Components(ResolverMethod):
         )
 
         return (
-            pl.from_arrow(
-                connected_components(
-                    edges["src"].to_arrow(),
-                    edges["dst"].to_arrow(),
+            pl.DataFrame(
+                pa.record_batch(
+                    connected_components(
+                        edges["src"].to_arrow(),
+                        edges["dst"].to_arrow(),
+                    )
                 )
             )
             .rename({"label": "parent_id", "key": "child_id"})

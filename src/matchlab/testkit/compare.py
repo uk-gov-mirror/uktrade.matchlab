@@ -14,6 +14,7 @@ clusters were subsets" tells you the matcher is too strict, in a way a number ca
 from collections import Counter
 
 import polars as pl
+import pyarrow as pa
 from fastdsu import connected_components
 
 from matchlab.testkit.entities import Cluster, EntityReference
@@ -144,8 +145,10 @@ def scores_to_clusters(
     edges = pl.concat([matched, self_edges])
 
     components = (
-        pl.from_arrow(
-            connected_components(edges["src"].to_arrow(), edges["dst"].to_arrow())
+        pl.DataFrame(
+            pa.record_batch(
+                connected_components(edges["src"].to_arrow(), edges["dst"].to_arrow())
+            )
         )
         .rename({"key": "id", "label": "component"})
         .group_by("component")
